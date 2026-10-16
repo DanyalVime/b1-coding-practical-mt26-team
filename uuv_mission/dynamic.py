@@ -76,6 +76,7 @@ class Mission:
 
     @classmethod
     def from_csv(cls, file_name: str):
+        """Load reference, cave_height and cave_depth from a mission CSV."""
         data = pd.read_csv(file_name)
         return cls(
             reference=data["reference"].to_numpy(dtype=float),
@@ -85,6 +86,10 @@ class Mission:
 
 
 class ClosedLoop:
+    """Run a simulation using a plant and a controller.
+
+    The controller must provide compute(reference, observation) and reset().
+    """
     def __init__(self, plant: Submarine, controller):
         self.plant = plant
         self.controller = controller
@@ -97,6 +102,7 @@ class ClosedLoop:
         positions = np.zeros((T, 2))
         actions = np.zeros(T)
         self.plant.reset_state()
+        # Prevent controller history from carrying over between missions.
         self.controller.reset()
 
         for t in range(T):
